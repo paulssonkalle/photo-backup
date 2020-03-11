@@ -36,8 +36,8 @@ public class Scheduling {
     // Archive photos at 01:00AM the first day of every month
     @Scheduled(cron = "0 0 1 1 * ?")
     public void archivePhotos() throws IOException {
-        log.info("Starting zip and copy task");
+        log.info("Starting archive photos task");
         fileService.archivePhotos();
-        log.info("Finished zip and copy task");
+        log.info("Finished archive photos task");
     }
 }
