@@ -26,7 +26,6 @@ public class Scheduling {
 
     // Upload photos to AWS at 06:00AM the first day of every month
     @Scheduled(cron = "0 0 6 1 * ?")
-    @Scheduled(fixedDelay = 120000)
     public void uploadPhotos() {
         log.info("Starting upload task");
         bucketService.uploadPhotos();
