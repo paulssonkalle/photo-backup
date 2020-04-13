@@ -5,6 +5,5 @@ app:
   backup:
     paths:
       base_path: /home/kalle/tmp
-      photos_path: ${app.backup.paths.base_path}/photos
-      monthly_path: ${app.backup.paths.base_path}/monthly
-      aws_path: ${app.backup.paths.base_path}/aws
+      photos_path: ${app.backup.paths.base_path}/Photos
+      backup_path: ${app.backup.paths.base_path}/backup

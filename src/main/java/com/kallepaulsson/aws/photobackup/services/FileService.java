@@ -25,35 +25,13 @@ public class FileService {
     }
 
 
-    public void archivePhotos() throws IOException {
+    public void zipPhotos() throws IOException {
         final LocalDate yesterday = LocalDate.now().minus(1, ChronoUnit.DAYS);
         final String year = String.valueOf(yesterday.getYear());
-        final String month = String.valueOf(yesterday.getMonthValue());
-        copyPhotos(year, month);
-        zipPhotos(year, month);
-        removePhotos();
-    }
+        final String month = String.format("%02d", yesterday.getMonthValue());
 
-    private void copyPhotos(String year, String month) throws IOException {
-        final Path sourceFolder = backupPaths.getMonthlyPath();
-        final Path destinationFolder = createDestinationFolder(year, month);
-
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourceFolder, (file) -> Files.isRegularFile(file))) {
-            directoryStream.forEach(sourceFile -> {
-                final Path destinationFile = destinationFolder.resolve(sourceFile.getFileName());
-                try {
-                    Files.copy(sourceFile, destinationFile,
-                            StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-                } catch (IOException e) {
-                    log.error("Failed to copy {} to {}", sourceFile, destinationFile, e);
-                }
-            });
-        }
-    }
-
-    private void zipPhotos(String year, String month) throws IOException {
-        final Path sourceFolder = backupPaths.getMonthlyPath();
-        final Path destinationZip = backupPaths.getAwsPath().resolve(year + "_" + month + ".zip");
+        final Path sourceFolder = backupPaths.getPhotosPath().resolve(year).resolve(month);
+        final Path destinationZip = backupPaths.getBackupPath().resolve(year + "_" + month + ".zip");
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sourceFolder, (file) -> Files.isRegularFile(file));
              ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(destinationZip)))) {
@@ -68,17 +46,5 @@ public class FileService {
                 }
             });
         }
-    }
-
-    private void removePhotos() throws IOException {
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(backupPaths.getMonthlyPath(), (file) -> Files.isRegularFile(file))) {
-            for (Path path : directoryStream) {
-                Files.delete(path);
-            }
-        }
-    }
-
-    private Path createDestinationFolder(String year, String month) throws IOException {
-        return Files.createDirectories(backupPaths.getPhotosPath().resolve(year).resolve(month));
     }
 }

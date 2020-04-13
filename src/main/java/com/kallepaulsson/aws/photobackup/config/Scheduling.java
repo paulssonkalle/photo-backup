@@ -24,19 +24,21 @@ public class Scheduling {
         this.fileService = fileService;
     }
 
+    // Archive photos at 01:00AM the first day of every month
+    @Scheduled(cron = "0 0 1 1 * ?")
+    @Scheduled(fixedDelay = 30000)
+    public void archivePhotos() throws IOException {
+        log.info("Starting archive photos task");
+        fileService.zipPhotos();
+        log.info("Finished archive photos task");
+    }
+
     // Upload photos to AWS at 06:00AM the first day of every month
     @Scheduled(cron = "0 0 6 1 * ?")
+    @Scheduled(fixedDelay = 30000)
     public void uploadPhotos() {
         log.info("Starting upload task");
         bucketService.uploadPhotos();
         log.info("Finished upload task");
-    }
-
-    // Archive photos at 01:00AM the first day of every month
-    @Scheduled(cron = "0 0 1 1 * ?")
-    public void archivePhotos() throws IOException {
-        log.info("Starting archive photos task");
-        fileService.archivePhotos();
-        log.info("Finished archive photos task");
     }
 }

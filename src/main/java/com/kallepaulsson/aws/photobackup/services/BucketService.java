@@ -10,13 +10,9 @@ import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.StorageClass;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class BucketService {
@@ -34,40 +30,26 @@ public class BucketService {
     }
 
     public void uploadPhotos() {
+        final LocalDate yesterday = LocalDate.now().minus(1, ChronoUnit.DAYS);
+        final String year = String.valueOf(yesterday.getYear());
+        final String month = String.format("%02d", yesterday.getMonthValue());
+
         final String bucketName = awsProperties.getBucket().getName();
-        final Path awsPath = backupPaths.getAwsPath();
-        final Set<CompletableFuture<PutObjectResponse>> futureResponses = new HashSet<>();
+        final Path fileToUpload = backupPaths.getBackupPath().resolve(year + "_" + month + ".zip");
+        final String filename = fileToUpload.getFileName().toString();
 
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(awsPath, file -> Files.isRegularFile(file))) {
-            files.forEach(file -> {
-                final String filename = file.getFileName().toString();
-
-                log.info("Starting upload of {}", filename);
-                CompletableFuture<PutObjectResponse> futureResponse = s3.putObject(builder -> builder
-                                .bucket(bucketName)
-                                .key(filename)
-                                .storageClass(StorageClass.DEEP_ARCHIVE), AsyncRequestBody.fromFile(file))
-                        .whenComplete((response, exception) -> handleCompletedUpload(response, exception, file));
-
-                futureResponses.add(futureResponse);
-            });
-        } catch (IOException e) {
-            log.error("Failed to get files for {}", awsPath, e);
-        }
-
-        CompletableFuture
-                .allOf(futureResponses.toArray(new CompletableFuture[0]))
+        log.info("Starting upload of {}", filename);
+        s3.putObject(builder -> builder
+                .bucket(bucketName)
+                .key(filename)
+                .storageClass(StorageClass.DEEP_ARCHIVE), AsyncRequestBody.fromFile(fileToUpload))
+                .whenComplete((response, exception) -> handleCompletedUpload(response, exception, fileToUpload))
                 .join();
     }
 
     private void handleCompletedUpload(PutObjectResponse response, Throwable exception, Path file) {
         if (response != null) {
             log.info("Uploaded {} successfully", file.getFileName());
-            try {
-                Files.deleteIfExists(file);
-            } catch (IOException e) {
-                log.error("Failed to delete {}", file.getFileName(), e);
-            }
         } else {
             log.error("Failed to upload {}", file.getFileName(), exception);
         }

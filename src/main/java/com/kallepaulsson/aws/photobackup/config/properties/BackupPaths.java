@@ -8,8 +8,7 @@ import java.nio.file.Path;
 public class BackupPaths {
     private Path basePath;
     private Path photosPath;
-    private Path monthlyPath;
-    private Path awsPath;
+    private Path backupPath;
 
     public Path getBasePath() {
         return basePath;
@@ -27,19 +26,11 @@ public class BackupPaths {
         this.photosPath = photosPath;
     }
 
-    public Path getMonthlyPath() {
-        return monthlyPath;
+    public Path getBackupPath() {
+        return backupPath;
     }
 
-    public void setMonthlyPath(Path monthlyPath) {
-        this.monthlyPath = monthlyPath;
-    }
-
-    public Path getAwsPath() {
-        return awsPath;
-    }
-
-    public void setAwsPath(Path awsPath) {
-        this.awsPath = awsPath;
+    public void setBackupPath(Path backupPath) {
+        this.backupPath = backupPath;
     }
 }
