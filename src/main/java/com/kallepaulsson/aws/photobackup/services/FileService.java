@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.nio.file.*;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -24,12 +25,7 @@ public class FileService {
         this.backupPaths = backupPaths;
     }
 
-
-    public void zipPhotos() throws IOException {
-        final LocalDate yesterday = LocalDate.now().minus(1, ChronoUnit.DAYS);
-        final String year = String.valueOf(yesterday.getYear());
-        final String month = String.format("%02d", yesterday.getMonthValue());
-
+    public void zipPhotos(String year, String month) throws IOException {
         final Path sourceFolder = backupPaths.getPhotosPath().resolve(year).resolve(month);
         final Path destinationZip = backupPaths.getBackupPath().resolve(year + "_" + month + ".zip");
 

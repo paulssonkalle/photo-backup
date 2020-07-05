@@ -11,8 +11,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.StorageClass;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 @Service
 public class BucketService {
@@ -29,11 +27,7 @@ public class BucketService {
         this.backupPaths = backupPaths;
     }
 
-    public void uploadPhotos() {
-        final LocalDate yesterday = LocalDate.now().minus(1, ChronoUnit.DAYS);
-        final String year = String.valueOf(yesterday.getYear());
-        final String month = String.format("%02d", yesterday.getMonthValue());
-
+    public void uploadPhotos(String year, String month) {
         final String bucketName = awsProperties.getBucket().getName();
         final Path fileToUpload = backupPaths.getBackupPath().resolve(year + "_" + month + ".zip");
         final String filename = fileToUpload.getFileName().toString();

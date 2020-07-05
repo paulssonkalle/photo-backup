@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Configuration
 @EnableScheduling
@@ -26,19 +28,23 @@ public class Scheduling {
 
     // Archive photos at 01:00AM the first day of every month
     @Scheduled(cron = "0 0 1 1 * ?")
-    @Scheduled(fixedDelay = 30000)
     public void archivePhotos() throws IOException {
         log.info("Starting archive photos task");
-        fileService.zipPhotos();
+        final LocalDate yesterday = dateOfYesterday();
+        fileService.zipPhotos(String.valueOf(yesterday.getYear()), String.format("%02d", yesterday.getMonthValue()));
         log.info("Finished archive photos task");
     }
 
     // Upload photos to AWS at 06:00AM the first day of every month
     @Scheduled(cron = "0 0 6 1 * ?")
-    @Scheduled(fixedDelay = 30000)
     public void uploadPhotos() {
         log.info("Starting upload task");
-        bucketService.uploadPhotos();
+        final LocalDate yesterday = dateOfYesterday();
+        bucketService.uploadPhotos(String.valueOf(yesterday.getYear()), String.format("%02d", yesterday.getMonthValue()));
         log.info("Finished upload task");
+    }
+
+    private LocalDate dateOfYesterday() {
+        return LocalDate.now().minus(1, ChronoUnit.DAYS);
     }
 }
