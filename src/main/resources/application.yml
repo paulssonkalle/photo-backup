@@ -10,3 +10,6 @@ app:
       base_path: /home/kalle/tmp
       photos_path: ${app.backup.paths.base_path}/Photos
       backup_path: ${app.backup.paths.base_path}/backup
+    # The number of months the application will check for missing photos before uploading to aws.
+    # This is needed since the Nextcloud mobile app is not very reliable when it comes to syncing photos.
+    check_interval: 3
