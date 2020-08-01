@@ -42,7 +42,7 @@ public class BucketService {
     }
 
     private void handleCompletedUpload(PutObjectResponse response, Throwable exception, Path file) {
-        if (response != null) {
+        if (response != null && response.sdkHttpResponse().isSuccessful()) {
             log.info("Uploaded {} successfully", file.getFileName());
         } else {
             log.error("Failed to upload {}", file.getFileName(), exception);
